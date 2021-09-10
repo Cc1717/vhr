@@ -1,9 +1,8 @@
 # vhr
 A personnel management system based on springboot + vue.
 
-<font color=blue>
-  vhr/mailserver/src/main/resources/application.properties
-  spring.mail.username=null
-  spring.mail.password=null
-  (use yourself mail config)
-</font>
+vhr/mailserver/src/main/resources/application.properties<br/>
+spring.mail.username=null<br/>
+spring.mail.password=null<br/>
+(please use yourself mail config)
+
