@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.cxw.vhr.mapper.EmployeetrainMapper">
+    <resultMap id="BaseResultMap" type="org.cxw.vhr.model.Employeetrain">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="eid" property="eid" jdbcType="INTEGER"/>
+        <result column="trainDate" property="trainDate" jdbcType="TIMESTAMP"/>
+        <result column="trainContent" property="trainContent" jdbcType="VARCHAR"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="TrainWithEmployee" type="org.cxw.vhr.model.Employeetrain" extends="BaseResultMap">
+        <association property="employee" javaType="org.cxw.vhr.model.Employee">
+            <result column="name" property="name" jdbcType="VARCHAR"/>
+            <result column="workID" property="workID" jdbcType="VARCHAR"/>
+            <association property="department" javaType="org.cxw.vhr.model.Department">
+                <result column="dname" property="name" jdbcType="VARCHAR"/>
+            </association>
+        </association>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    id, eid, trainDate, trainContent, remark
+  </sql>
+
+    <select id="getTrainsByPage" resultMap="TrainWithEmployee">
+        select et.*,e.name,e.workID,d.`name` as dname from employeetrain et,employee e,department d
+        where et.eid=e.id and e.departmentId=d.id
+        <if test="employee!=null">
+            <if test="employee.name!=null and employee.name!=''">
+                and e.name like concat('%',#{employee.name},'%')
+            </if>
+            <if test="employee.workID!=null and employee.workID!=''">
+                and e.workID=#{employee.workID}
+            </if>
+        </if>
+        <if test="timeScope!=null">
+            and et.trainDate between #{timeScope[0]} and #{timeScope[1]}
+        </if>
+        order by et.trainDate desc,et.trainContent
+        <if test="page!=null and size!=null">
+            limit #{page},#{size}
+        </if>
+    </select>
+
+    <select id="getTotal" resultType="java.lang.Long">
+        select count(*) from employeetrain et,employee e where et.eid=e.id
+        <if test="employee!=null">
+            <if test="employee.name!=null and employee.name!=''">
+                and e.name like concat('%',#{employee.name},'%')
+            </if>
+            <if test="employee.workID!=null and employee.workID!=''">
+                and e.workID=#{employee.workID}
+            </if>
+        </if>
+        <if test="timeScope!=null">
+            and et.trainDate between #{timeScope[0]} and #{timeScope[1]}
+        </if>
+    </select>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from employeetrain
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <delete id="deleteTrainsByIds">
+        delete from employeetrain where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from employeetrain
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+
+    <insert id="insert" parameterType="org.cxw.vhr.model.Employeetrain">
+    insert into employeetrain (id, eid, trainDate,
+      trainContent, remark)
+    values (#{id,jdbcType=INTEGER}, #{eid,jdbcType=INTEGER}, #{trainDate,jdbcType=TIMESTAMP},
+      #{trainContent,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR})
+  </insert>
+
+    <insert id="addTrains">
+        insert into employeetrain (eid, trainDate, trainContent, remark)
+        values
+        <foreach collection="trains" item="train" separator=",">
+            (#{train.eid,jdbcType=INTEGER}, #{train.trainDate,jdbcType=TIMESTAMP},
+            #{train.trainContent,jdbcType=VARCHAR}, #{train.remark,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+
+    <insert id="insertSelective" parameterType="org.cxw.vhr.model.Employeetrain">
+        insert into employeetrain
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="eid != null">
+                eid,
+            </if>
+            <if test="trainDate != null">
+                trainDate,
+            </if>
+            <if test="trainContent != null">
+                trainContent,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="eid != null">
+                #{eid,jdbcType=INTEGER},
+            </if>
+            <if test="trainDate != null">
+                #{trainDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="trainContent != null">
+                #{trainContent,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="org.cxw.vhr.model.Employeetrain">
+        update employeetrain
+        <set>
+            <if test="eid != null">
+                eid = #{eid,jdbcType=INTEGER},
+            </if>
+            <if test="trainDate != null">
+                trainDate = #{trainDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="trainContent != null">
+                trainContent = #{trainContent,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="org.cxw.vhr.model.Employeetrain">
+    update employeetrain
+    set eid = #{eid,jdbcType=INTEGER},
+      trainDate = #{trainDate,jdbcType=TIMESTAMP},
+      trainContent = #{trainContent,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

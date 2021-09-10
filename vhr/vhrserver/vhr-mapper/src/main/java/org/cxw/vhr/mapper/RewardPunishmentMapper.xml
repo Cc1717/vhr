@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.cxw.vhr.mapper.RewardPunishmentMapper">
+    <resultMap id="BaseResultMap" type="org.cxw.vhr.model.RewardPunishment">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="way" property="way" jdbcType="INTEGER"/>
+        <result column="amount" property="amount" jdbcType="INTEGER"/>
+        <result column="point" property="point" jdbcType="REAL"/>
+        <result column="type" property="type" jdbcType="INTEGER"/>
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, name, way, amount, point, type, createTime
+  </sql>
+
+    <select id="getRewardPunishments" resultMap="BaseResultMap">
+        select * from rewardpunishment
+        <where>
+            <if test="rewardPunishment!=null">
+                <if test="rewardPunishment.type!=null">
+                    and type=#{rewardPunishment.type}
+                </if>
+                <if test="rewardPunishment.way!=null">
+                    and way=#{rewardPunishment.way}
+                </if>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from rewardpunishment
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <delete id="deleteRewardPunishmentsByIds">
+        delete from rewardpunishment where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from rewardpunishment
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+
+    <insert id="insert" parameterType="org.cxw.vhr.model.RewardPunishment">
+    insert into rewardpunishment (id, name, way, 
+      amount, point, type, 
+      createTime)
+    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{way,jdbcType=INTEGER}, 
+      #{amount,jdbcType=INTEGER}, #{point,jdbcType=REAL}, #{type,jdbcType=INTEGER},
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+    <insert id="insertSelective" parameterType="org.cxw.vhr.model.RewardPunishment">
+        insert into rewardpunishment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="way != null">
+                way,
+            </if>
+            <if test="amount != null">
+                amount,
+            </if>
+            <if test="point != null">
+                point,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="createTime != null">
+                createTime,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="way != null">
+                #{way,jdbcType=INTEGER},
+            </if>
+            <if test="amount != null">
+                #{amount,jdbcType=INTEGER},
+            </if>
+            <if test="point != null">
+                #{point,jdbcType=REAL},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="org.cxw.vhr.model.RewardPunishment">
+        update rewardpunishment
+        <set>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="way != null">
+                way = #{way,jdbcType=INTEGER},
+            </if>
+            amount = #{amount,jdbcType=INTEGER},
+            point = #{point,jdbcType=REAL},
+            <if test="type != null">
+                type = #{type,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                createTime = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="org.cxw.vhr.model.RewardPunishment">
+    update rewardpunishment
+    set name = #{name,jdbcType=VARCHAR},
+      way = #{way,jdbcType=INTEGER},
+      amount = #{amount,jdbcType=INTEGER},
+      point = #{point,jdbcType=REAL},
+      type = #{type,jdbcType=INTEGER},
+      createTime = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

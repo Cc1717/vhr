@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.cxw.vhr.mapper.EmployeeecMapper" >
+  <resultMap id="BaseResultMap" type="org.cxw.vhr.model.Employeeec" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="eid" property="eid" jdbcType="INTEGER" />
+    <result column="rpId" property="rpId" jdbcType="INTEGER" />
+    <result column="ecDate" property="ecDate" jdbcType="DATE" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="EmployeeecResultMap" type="org.cxw.vhr.model.Employeeec" extends="BaseResultMap">
+    <association property="employee" javaType="org.cxw.vhr.model.Employee">
+      <result column="name" property="name" jdbcType="VARCHAR"/>
+      <result column="workID" property="workID" jdbcType="VARCHAR"/>
+      <association property="department" javaType="org.cxw.vhr.model.Department">
+        <result column="dname" property="name" jdbcType="VARCHAR"/>
+      </association>
+    </association>
+    <association property="rewardPunishment" javaType="org.cxw.vhr.model.RewardPunishment">
+      <result column="rpname" property="name" jdbcType="VARCHAR"/>
+      <result column="way" property="way" jdbcType="INTEGER"/>
+      <result column="amount" property="amount" jdbcType="INTEGER"/>
+      <result column="point" property="point" jdbcType="REAL"/>
+      <result column="type" property="type" jdbcType="INTEGER"/>
+      <result column="createTime" property="createTime" jdbcType="TIMESTAMP"/>
+    </association>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, eid, rpId, ecDate, remark
+  </sql>
+
+  <select id="getEmployeeecsByPage" resultMap="EmployeeecResultMap">
+    select ec.*,e.name,e.workID,d.name as dname,rp.name as rpname,rp.way,rp.amount,
+    rp.point,rp.type,rp.createTime from employeeec ec,employee e,department d,rewardpunishment rp
+    where ec.eid=e.id and e.departmentId=d.id and ec.rpId=rp.id
+    <if test="employee!=null">
+      <if test="employee.name!=null and employee.name!=''">
+        and e.name like concat('%',#{employee.name},'%')
+      </if>
+      <if test="employee.workID!=null and employee.workID!=''">
+        and e.workID=#{employee.workID}
+      </if>
+    </if>
+    <if test="timeScope!=null">
+      and ec.ecDate between #{timeScope[0]} and #{timeScope[1]}
+    </if>
+    order by ec.ecDate desc
+    <if test="page!=null and size!=null">
+      limit #{page},#{size}
+    </if>
+  </select>
+
+  <select id="getTotal" resultType="java.lang.Long">
+    select count(*) from employeeec ec,employee e where ec.eid=e.id
+    <if test="employee!=null">
+      <if test="employee.name!=null and employee.name!=''">
+        and e.name like concat('%',#{employee.name},'%')
+      </if>
+      <if test="employee.workID!=null and employee.workID!=''">
+        and e.workID=#{employee.workID}
+      </if>
+    </if>
+    <if test="timeScope!=null">
+      and ec.ecDate between #{timeScope[0]} and #{timeScope[1]}
+    </if>
+  </select>
+
+  <select id="getRecord" resultType="java.lang.Long">
+    select count(*) from employeeec
+    <where>
+      <if test="employeeec!=null">
+        <if test="employeeec.eid!=null">
+          and employeeec.eid=#{employeeec.eid}
+        </if>
+        <if test="employeeec.rpId!=null">
+          and employeeec.rpId=#{employeeec.rpId}
+        </if>
+        <if test="employeeec.ecDate!=null">
+          and employeeec.ecDate=#{employeeec.ecDate}
+        </if>
+      </if>
+    </where>
+  </select>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from employeeec
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from employeeec
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="org.cxw.vhr.model.Employeeec" >
+    insert into employeeec (id, eid, rpId, 
+      ecDate, remark)
+    values (#{id,jdbcType=INTEGER}, #{eid,jdbcType=INTEGER}, #{rpId,jdbcType=INTEGER}, 
+      #{ecDate,jdbcType=DATE}, #{remark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="org.cxw.vhr.model.Employeeec" >
+    insert into employeeec
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="eid != null" >
+        eid,
+      </if>
+      <if test="rpId != null" >
+        rpId,
+      </if>
+      <if test="ecDate != null" >
+        ecDate,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="eid != null" >
+        #{eid,jdbcType=INTEGER},
+      </if>
+      <if test="rpId != null" >
+        #{rpId,jdbcType=INTEGER},
+      </if>
+      <if test="ecDate != null" >
+        #{ecDate,jdbcType=DATE},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="org.cxw.vhr.model.Employeeec" >
+    update employeeec
+    <set >
+      <if test="eid != null" >
+        eid = #{eid,jdbcType=INTEGER},
+      </if>
+      <if test="rpId != null" >
+        rpId = #{rpId,jdbcType=INTEGER},
+      </if>
+      <if test="ecDate != null" >
+        ecDate = #{ecDate,jdbcType=DATE},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.cxw.vhr.model.Employeeec" >
+    update employeeec
+    set eid = #{eid,jdbcType=INTEGER},
+      rpId = #{rpId,jdbcType=INTEGER},
+      ecDate = #{ecDate,jdbcType=DATE},
+      remark = #{remark,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.cxw.vhr.mapper.MeetingMapper" >
+  <resultMap id="BaseResultMap" type="org.cxw.vhr.model.Meeting" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="meetingName" property="meetingName" jdbcType="VARCHAR" />
+    <result column="meetingTime" property="meetingTime" jdbcType="TIMESTAMP" />
+    <result column="meetingPlace" property="meetingPlace" jdbcType="VARCHAR" />
+    <result column="speakerId" property="speakerId" jdbcType="INTEGER" />
+    <result column="recorderId" property="recorderId" jdbcType="INTEGER" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="meetingWithEmployee" type="org.cxw.vhr.model.Meeting" extends="BaseResultMap">
+    <association property="speaker" javaType="org.cxw.vhr.model.Employee">
+      <result column="speakerName" property="name" jdbcType="VARCHAR" />
+      <association property="department" javaType="org.cxw.vhr.model.Department">
+        <result column="speakerDepartment" property="name" jdbcType="VARCHAR" />
+      </association>
+    </association>
+    <association property="recorder" javaType="org.cxw.vhr.model.Employee">
+      <result column="recorderName" property="name" jdbcType="VARCHAR" />
+      <association property="department" javaType="org.cxw.vhr.model.Department">
+        <result column="recorderDepartment" property="name" jdbcType="VARCHAR" />
+      </association>
+    </association>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, meetingName, meetingTime, meetingPlace, speakerId, recorderId, remark
+  </sql>
+
+  <select id="getThisMonthMeetings" resultMap="meetingWithEmployee">
+    select m.*,e1.name as speakerName,d1.name as speakerDepartment,e2.name as recorderName,d2.name as recorderDepartment
+    from meeting m,employee e1,employee e2,department d1,department d2 where m.speakerId=e1.id and e1.departmentId=d1.id
+    and m.recorderId=e2.id and e2.departmentId=d2.id and m.meetingTime between #{monthStartDate} and #{monthEndDate}
+    order by m.meetingTime desc
+  </select>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from meeting
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from meeting
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="org.cxw.vhr.model.Meeting" >
+    insert into meeting (id, meetingName, meetingTime, 
+      meetingPlace, speakerId, recorderId, 
+      remark)
+    values (#{id,jdbcType=INTEGER}, #{meetingName,jdbcType=VARCHAR}, #{meetingTime,jdbcType=TIMESTAMP}, 
+      #{meetingPlace,jdbcType=VARCHAR}, #{speakerId,jdbcType=INTEGER}, #{recorderId,jdbcType=INTEGER}, 
+      #{remark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="org.cxw.vhr.model.Meeting" >
+    insert into meeting
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="meetingName != null" >
+        meetingName,
+      </if>
+      <if test="meetingTime != null" >
+        meetingTime,
+      </if>
+      <if test="meetingPlace != null" >
+        meetingPlace,
+      </if>
+      <if test="speakerId != null" >
+        speakerId,
+      </if>
+      <if test="recorderId != null" >
+        recorderId,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="meetingName != null" >
+        #{meetingName,jdbcType=VARCHAR},
+      </if>
+      <if test="meetingTime != null" >
+        #{meetingTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="meetingPlace != null" >
+        #{meetingPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="speakerId != null" >
+        #{speakerId,jdbcType=INTEGER},
+      </if>
+      <if test="recorderId != null" >
+        #{recorderId,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="org.cxw.vhr.model.Meeting" >
+    update meeting
+    <set >
+      <if test="meetingName != null" >
+        meetingName = #{meetingName,jdbcType=VARCHAR},
+      </if>
+      <if test="meetingTime != null" >
+        meetingTime = #{meetingTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="meetingPlace != null" >
+        meetingPlace = #{meetingPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="speakerId != null" >
+        speakerId = #{speakerId,jdbcType=INTEGER},
+      </if>
+      <if test="recorderId != null" >
+        recorderId = #{recorderId,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.cxw.vhr.model.Meeting" >
+    update meeting
+    set meetingName = #{meetingName,jdbcType=VARCHAR},
+      meetingTime = #{meetingTime,jdbcType=TIMESTAMP},
+      meetingPlace = #{meetingPlace,jdbcType=VARCHAR},
+      speakerId = #{speakerId,jdbcType=INTEGER},
+      recorderId = #{recorderId,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
